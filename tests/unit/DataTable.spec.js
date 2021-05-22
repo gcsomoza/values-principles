@@ -1,7 +1,7 @@
-import { mount } from '@vue/test-utils'
+import { mount, shallowMount } from '@vue/test-utils'
 import DataTable from '@/components/DataTable.vue'
 
-describe('DataTable.vue', () => {
+describe('DataTable.vue User Interface', () => {
   test('Add new row when Add New button is clicked', async () => {
     const wrapper = mount(DataTable)
 
@@ -58,5 +58,32 @@ describe('DataTable.vue', () => {
     const input = await wrapper.findAll('input[type="text"]')
 
     expect(input.length).toBe(1)
+  })
+})
+
+describe('DataTable.vue Interactions', () => {
+  test('Call add function when Add New button is clicked', async () => {
+    const wrapper = mount(DataTable)
+    const mockMethod = jest.spyOn(wrapper.vm, 'add');
+    await wrapper.find('button.btn-add').trigger('click')
+    expect(mockMethod).toHaveBeenCalled()
+  })
+
+  test('Call edit function when Edit/Save button is clicked', async () => {
+    const wrapper = mount(DataTable)
+    const mockMethod = jest.spyOn(wrapper.vm, 'edit');
+    await wrapper.find('button.btn-add').trigger('click')
+    await wrapper.vm.$nextTick()
+    await wrapper.find('button.btn-edit').trigger('click')
+    expect(mockMethod).toHaveBeenCalled()
+  })
+
+  test('Call remove function when Remove button is clicked', async () => {
+    const wrapper = mount(DataTable)
+    const mockMethod = jest.spyOn(wrapper.vm, 'remove');
+    await wrapper.find('button.btn-add').trigger('click')
+    await wrapper.vm.$nextTick()
+    await wrapper.find('button.btn-delete').trigger('click')
+    expect(mockMethod).toHaveBeenCalled()
   })
 })
