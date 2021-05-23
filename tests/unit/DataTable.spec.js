@@ -1,4 +1,4 @@
-import { mount, shallowMount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import DataTable from '@/components/DataTable.vue'
 
 describe('DataTable.vue User Interface', () => {
@@ -85,5 +85,66 @@ describe('DataTable.vue Interactions', () => {
     await wrapper.vm.$nextTick()
     await wrapper.find('button.btn-delete').trigger('click')
     expect(mockMethod).toHaveBeenCalled()
+  })
+})
+
+describe('DataTable.vue Database Mock', () => {
+  test('Ensure that Database.js save function was called when Save button is clicked', async () => {
+    // Mock Database.js and assign it to wrapper.vm.db later
+    const db = {
+      save: jest.fn()
+    }
+    const wrapper = mount(DataTable, {
+      props: {
+        databaseTable: 'values'
+      },
+      data() {
+        return {
+          items: [],
+          db: null,
+        }
+      },
+    })
+    wrapper.vm.db = db
+    wrapper.vm.items = [
+      {id: 1, value: 'Individuals and Interactions Over Processes and Tools.', input: true}
+    ]
+    expect(wrapper.vm.items[0].input).toBeTruthy()
+
+    // When item.input is true and edit function is called then
+    // it will perform database save and change item.input to false
+    await wrapper.vm.edit(0)
+    expect(wrapper.vm.items[0].input).not.toBeTruthy()
+
+    // Ensure that database save function was called successfully
+    expect(db.save).toHaveBeenCalledTimes(1)
+    expect(db.save).toHaveBeenCalledWith(wrapper.vm.items)
+  })
+
+  test('Ensure that Database.js save function was called when Remove button is clicked', async () => {
+    // Mock Database.js and assign it to wrapper.vm.db later
+    const db = {
+      save: jest.fn()
+    }
+    const wrapper = mount(DataTable, {
+      props: {
+        databaseTable: 'values'
+      },
+      data() {
+        return {
+          items: [],
+          db: null,
+        }
+      },
+    })
+    wrapper.vm.db = db
+    wrapper.vm.items = [
+      {id: 1, value: 'Individuals and Interactions Over Processes and Tools.', input: false}
+    ]
+    await wrapper.vm.remove(0)
+
+    // Ensure that database save function was called successfully
+    expect(db.save).toHaveBeenCalledTimes(1)
+    expect(db.save).toHaveBeenCalledWith(wrapper.vm.items)
   })
 })
